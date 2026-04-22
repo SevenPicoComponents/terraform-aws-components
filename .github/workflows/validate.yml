@@ -1,0 +1,70 @@
+name: Validate Modules
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - "modules/**"
+      - "examples/**"
+
+jobs:
+  tflint:
+    name: TFLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.55.0
+
+      - name: Init TFLint
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Run TFLint on each module
+        run: |
+          for dir in modules/*/; do
+            if [ -f "$dir/_context.tf" ] || ls "$dir"/*.tf 2>/dev/null | head -1 | grep -q .; then
+              echo "::group::tflint $dir"
+              tflint --chdir="$dir"
+              echo "::endgroup::"
+            fi
+          done
+
+  terraform-fmt:
+    name: Terraform Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive modules/ examples/
+
+  terraform-validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.9"
+
+      - name: Validate each module
+        run: |
+          for dir in modules/*/; do
+            if ls "$dir"/*.tf 2>/dev/null | head -1 | grep -q .; then
+              echo "::group::validate $dir"
+              terraform -chdir="$dir" init -backend=false
+              terraform -chdir="$dir" validate
+              echo "::endgroup::"
+            fi
+          done
