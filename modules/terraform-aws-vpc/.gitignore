@@ -1,0 +1,15 @@
+# Compiled files
+*.tfstate
+*.tfstate.backup
+
+# Module directory
+.terraform
+.idea
+*.iml
+
+.build-harness
+build-harness
+
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+# example: *tfplan*
+.terraform.lock.hcl
