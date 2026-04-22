@@ -1,0 +1,14 @@
+#  Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# IDE files
+.idea
+*.iml
+
+# Build harness files
+.build-harness
+build-harness
