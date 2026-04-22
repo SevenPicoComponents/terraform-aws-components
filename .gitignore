@@ -36,3 +36,6 @@ generated_*.tf
 __pycache__/
 *.py[cod]
 temp_venv/
+
+# Git workflow session artifacts
+.git-workflow/
